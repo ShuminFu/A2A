@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "A2A v1.0 Task Interaction",
+    "subtitle": "Discovery, streaming, interruption and the three result-delivery paths",
+    "output": "a2a-v1-task-sequence.html",
+    "viewBox": [
+      900,
+      960
+    ],
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "views": [
+      {
+        "id": "discover",
+        "label": "Discover and configure",
+        "focus": [
+          "client",
+          "card",
+          "server"
+        ],
+        "note": "The signed Agent Card decides transport, version and auth before any task exists."
+      },
+      {
+        "id": "stream",
+        "label": "Stream and interrupt",
+        "focus": [
+          "client",
+          "server",
+          "executor"
+        ],
+        "note": "input_required pauses the task; the client resumes it with the same task_id and context_id."
+      },
+      {
+        "id": "deliver",
+        "label": "Three ways to get the result",
+        "focus": [
+          "server",
+          "store",
+          "push",
+          "client"
+        ],
+        "note": "Streaming, webhook push and plain polling all converge on the same Task."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client Agent",
+      "sublabel": "A2A client"
+    },
+    {
+      "id": "card",
+      "type": "external",
+      "label": "Agent Card",
+      "sublabel": "well-known URL"
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "A2AService",
+      "sublabel": "server binding"
+    },
+    {
+      "id": "executor",
+      "type": "backend",
+      "label": "Agent Executor",
+      "sublabel": "agent logic"
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "Task Store",
+      "sublabel": "Task + Artifacts"
+    },
+    {
+      "id": "push",
+      "type": "messagebus",
+      "label": "Push Notifier",
+      "sublabel": "webhook"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 290,
+      "label": "Discover and configure"
+    },
+    {
+      "from": 300,
+      "to": 534,
+      "label": "Send and stream"
+    },
+    {
+      "from": 546,
+      "to": 860,
+      "label": "Complete and deliver"
+    }
+  ],
+  "messages": [
+    {
+      "id": "fetch-card",
+      "from": "client",
+      "to": "card",
+      "y": 180,
+      "label": "GET agent card",
+      "variant": "default"
+    },
+    {
+      "id": "card-reply",
+      "from": "card",
+      "to": "client",
+      "y": 222,
+      "label": "supported_interfaces + signatures",
+      "variant": "return"
+    },
+    {
+      "id": "push-config",
+      "from": "client",
+      "to": "server",
+      "y": 264,
+      "label": "CreateTaskPushNotificationConfig",
+      "variant": "security"
+    },
+    {
+      "id": "send",
+      "from": "client",
+      "to": "server",
+      "y": 306,
+      "label": "SendStreamingMessage(Message)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "create-task",
+      "from": "server",
+      "to": "store",
+      "y": 348,
+      "label": "create Task (submitted)",
+      "variant": "default"
+    },
+    {
+      "id": "execute",
+      "from": "server",
+      "to": "executor",
+      "y": 390,
+      "label": "execute",
+      "variant": "emphasis"
+    },
+    {
+      "id": "working",
+      "from": "server",
+      "to": "client",
+      "y": 432,
+      "label": "StreamResponse: working",
+      "variant": "dashed"
+    },
+    {
+      "id": "need-input",
+      "from": "executor",
+      "to": "server",
+      "y": 474,
+      "label": "input_required",
+      "variant": "return"
+    },
+    {
+      "id": "stream-input",
+      "from": "server",
+      "to": "client",
+      "y": 516,
+      "label": "StreamResponse: input_required",
+      "variant": "dashed"
+    },
+    {
+      "id": "resume",
+      "from": "client",
+      "to": "server",
+      "y": 576,
+      "label": "SendMessage(task_id, context_id)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "result",
+      "from": "executor",
+      "to": "server",
+      "y": 618,
+      "label": "Artifact + completed",
+      "variant": "return"
+    },
+    {
+      "id": "persist",
+      "from": "server",
+      "to": "store",
+      "y": 660,
+      "label": "persist Artifact and history",
+      "variant": "default"
+    },
+    {
+      "id": "notify",
+      "from": "server",
+      "to": "push",
+      "y": 702,
+      "label": "task completed",
+      "variant": "dashed"
+    },
+    {
+      "id": "callback",
+      "from": "push",
+      "to": "client",
+      "y": 744,
+      "label": "POST webhook callback",
+      "variant": "dashed"
+    },
+    {
+      "id": "poll",
+      "from": "client",
+      "to": "server",
+      "y": 786,
+      "label": "GetTask(id)",
+      "variant": "default"
+    },
+    {
+      "id": "final",
+      "from": "server",
+      "to": "client",
+      "y": 828,
+      "label": "Task(state = completed)",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "card",
+      "from": 174,
+      "to": 230,
+      "type": "external"
+    },
+    {
+      "participant": "server",
+      "from": 258,
+      "to": 524,
+      "type": "backend"
+    },
+    {
+      "participant": "executor",
+      "from": 384,
+      "to": 482,
+      "type": "backend"
+    },
+    {
+      "participant": "store",
+      "from": 342,
+      "to": 356,
+      "type": "database"
+    },
+    {
+      "participant": "server",
+      "from": 570,
+      "to": 836,
+      "type": "backend"
+    },
+    {
+      "participant": "executor",
+      "from": 612,
+      "to": 626,
+      "type": "backend"
+    },
+    {
+      "participant": "store",
+      "from": 654,
+      "to": 668,
+      "type": "database"
+    },
+    {
+      "participant": "push",
+      "from": 696,
+      "to": 752,
+      "type": "messagebus"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Discovery first",
+      "items": [
+        "The Agent Card is fetched before any task exists",
+        "supported_interfaces picks binding and protocol_version",
+        "JWS signatures let a client trust a card across org boundaries"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Message-centric core",
+      "items": [
+        "SendMessage replaces v0.1 tasks/send",
+        "A task is created by the server, not named by the client",
+        "input_required and auth_required are interrupted, not terminal"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Result delivery",
+      "items": [
+        "Stream: SendStreamingMessage or SubscribeToTask",
+        "Push: TaskPushNotificationConfig webhook",
+        "Poll: GetTask and ListTasks"
+      ]
+    }
+  ]
+}

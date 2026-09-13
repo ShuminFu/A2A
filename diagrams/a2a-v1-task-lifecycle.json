@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "A2A v1.0 TaskState Lifecycle",
+    "subtitle": "Nine states from specification/a2a.proto \u2014 four terminal, two interrupted",
+    "output": "a2a-v1-task-lifecycle.html",
+    "viewBox": [
+      1040,
+      700
+    ],
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "happy",
+        "label": "Happy path",
+        "focus": [
+          "submitted",
+          "working",
+          "completed"
+        ],
+        "note": "The rail a task follows when nothing interrupts it."
+      },
+      {
+        "id": "interrupted",
+        "label": "Interrupted, not finished",
+        "focus": [
+          "working",
+          "inputrequired",
+          "authrequired"
+        ],
+        "note": "Both states resume the same task_id once the client responds."
+      },
+      {
+        "id": "terminal",
+        "label": "Terminal exits",
+        "focus": [
+          "working",
+          "failed",
+          "canceled",
+          "rejected"
+        ],
+        "note": "Four terminal states; SubscribeToTask is refused once any of them is reached."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Task states"
+    },
+    {
+      "id": "interrupted",
+      "label": "Interrupted (resumable)"
+    },
+    {
+      "id": "terminal",
+      "label": "Terminal exits"
+    }
+  ],
+  "states": [
+    {
+      "id": "submitted",
+      "type": "start",
+      "label": "SUBMITTED",
+      "sublabel": "acknowledged",
+      "lane": "main",
+      "col": 0,
+      "step": "01",
+      "tag": "entry"
+    },
+    {
+      "id": "working",
+      "type": "active",
+      "label": "WORKING",
+      "sublabel": "agent is processing",
+      "lane": "main",
+      "col": 2,
+      "step": "02",
+      "tag": "active"
+    },
+    {
+      "id": "completed",
+      "type": "success",
+      "label": "COMPLETED",
+      "sublabel": "artifacts returned",
+      "lane": "main",
+      "col": 4,
+      "step": "03",
+      "tag": "terminal"
+    },
+    {
+      "id": "inputrequired",
+      "type": "waiting",
+      "label": "INPUT_REQUIRED",
+      "sublabel": "needs user input",
+      "lane": "interrupted",
+      "col": 0,
+      "tag": "resume",
+      "width": 100
+    },
+    {
+      "id": "authrequired",
+      "type": "waiting",
+      "label": "AUTH_REQUIRED",
+      "sublabel": "needs credentials",
+      "lane": "interrupted",
+      "col": 1,
+      "tag": "resume",
+      "width": 100
+    },
+    {
+      "id": "failed",
+      "type": "failure",
+      "label": "FAILED",
+      "sublabel": "error during work",
+      "lane": "terminal",
+      "col": 0,
+      "tag": "terminal",
+      "width": 100
+    },
+    {
+      "id": "canceled",
+      "type": "failure",
+      "label": "CANCELED",
+      "sublabel": "CancelTask",
+      "lane": "terminal",
+      "col": 2,
+      "tag": "terminal",
+      "width": 100
+    },
+    {
+      "id": "rejected",
+      "type": "failure",
+      "label": "REJECTED",
+      "sublabel": "agent declines",
+      "lane": "terminal",
+      "col": 1,
+      "tag": "terminal",
+      "width": 100
+    }
+  ],
+  "transitions": [
+    {
+      "id": "needs-input",
+      "from": "working",
+      "to": "inputrequired",
+      "label": "needs input",
+      "variant": "default",
+      "route": "drop",
+      "channelX": 380,
+      "labelDx": -40
+    },
+    {
+      "id": "resume-input",
+      "from": "inputrequired",
+      "to": "working",
+      "label": "resume",
+      "variant": "emphasis",
+      "route": "drop",
+      "channelX": 424,
+      "labelDx": 40
+    },
+    {
+      "id": "needs-auth",
+      "from": "working",
+      "to": "authrequired",
+      "label": "auth challenge",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "top",
+      "via": [
+        [
+          470,
+          157
+        ],
+        [
+          470,
+          250
+        ],
+        [
+          556,
+          250
+        ]
+      ],
+      "labelSegment": 2,
+      "labelDy": -10
+    },
+    {
+      "id": "resume-auth",
+      "from": "authrequired",
+      "to": "working",
+      "label": "credentials",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [
+        [
+          780,
+          307
+        ],
+        [
+          780,
+          80
+        ],
+        [
+          310,
+          80
+        ],
+        [
+          310,
+          157
+        ]
+      ],
+      "labelSegment": 2,
+      "labelDy": 10
+    },
+    {
+      "id": "work-failed",
+      "from": "working",
+      "to": "failed",
+      "label": "error",
+      "variant": "security",
+      "fromSide": "left",
+      "toSide": "top",
+      "via": [
+        [
+          290,
+          157
+        ],
+        [
+          290,
+          410
+        ],
+        [
+          402,
+          410
+        ]
+      ]
+    },
+    {
+      "id": "work-canceled",
+      "from": "working",
+      "to": "canceled",
+      "label": "CancelTask",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "right",
+      "via": [
+        [
+          402,
+          60
+        ],
+        [
+          820,
+          60
+        ],
+        [
+          820,
+          479
+        ]
+      ]
+    },
+    {
+      "id": "submit-rejected",
+      "from": "submitted",
+      "to": "rejected",
+      "label": "refused",
+      "variant": "security",
+      "fromSide": "left",
+      "toSide": "bottom",
+      "via": [
+        [
+          20,
+          157
+        ],
+        [
+          20,
+          545
+        ],
+        [
+          556,
+          545
+        ]
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Main rail",
+      "items": [
+        "A task is created by the server on SendMessage",
+        "SUBMITTED and WORKING are the only non-terminal rail states",
+        "COMPLETED carries the Artifacts the client asked for"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Interrupted states",
+      "items": [
+        "INPUT_REQUIRED and AUTH_REQUIRED pause without ending the task",
+        "The client resumes with the same task_id and context_id",
+        "Streaming marks these as final chunks, not as an end of task"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Terminal exits",
+      "items": [
+        "COMPLETED, FAILED, CANCELED and REJECTED are terminal",
+        "SubscribeToTask returns UnsupportedOperationError once terminal",
+        "REJECTED can happen at creation, before any work starts"
+      ]
+    }
+  ]
+}

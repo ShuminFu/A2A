@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "A2A Protocol v1.0 Architecture",
+    "subtitle": "Upstream a2aproject/A2A at v1.0.1 \u2014 proto-first spec, three protocol bindings",
+    "output": "a2a-v1-architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "discovery",
+        "label": "Discovery and trust",
+        "focus": [
+          "client",
+          "card",
+          "auth",
+          "endpoint"
+        ],
+        "note": "A client reads the signed Agent Card, then picks an interface and authenticates."
+      },
+      {
+        "id": "bindings",
+        "label": "Three protocol bindings",
+        "focus": [
+          "endpoint",
+          "jsonrpc",
+          "grpc",
+          "restjson",
+          "server"
+        ],
+        "note": "One semantic model served over JSON-RPC, gRPC and HTTP+JSON."
+      },
+      {
+        "id": "results",
+        "label": "Getting results back",
+        "focus": [
+          "server",
+          "taskstore",
+          "stream",
+          "webhook",
+          "client"
+        ],
+        "note": "Polling, streaming or webhook delivery of task updates."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client Agent",
+      "sublabel": "A2A client SDK",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "Security Schemes",
+      "sublabel": "OAuth2 / OIDC / mTLS / API key",
+      "pos": [
+        40,
+        450
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "SecurityRequirement"
+    },
+    {
+      "id": "card",
+      "type": "external",
+      "label": "Agent Card",
+      "sublabel": "supported_interfaces[]",
+      "pos": [
+        290,
+        110
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "tag": "JWS signed"
+    },
+    {
+      "id": "endpoint",
+      "type": "cloud",
+      "label": "A2A Endpoint",
+      "sublabel": "tenant-routed",
+      "pos": [
+        290,
+        300
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "tag": "multi-tenant"
+    },
+    {
+      "id": "jsonrpc",
+      "type": "backend",
+      "label": "JSON-RPC 2.0",
+      "sublabel": "binding",
+      "pos": [
+        540,
+        190
+      ],
+      "size": [
+        150,
+        56
+      ]
+    },
+    {
+      "id": "grpc",
+      "type": "backend",
+      "label": "gRPC",
+      "sublabel": "binding",
+      "pos": [
+        540,
+        300
+      ],
+      "size": [
+        150,
+        56
+      ]
+    },
+    {
+      "id": "restjson",
+      "type": "backend",
+      "label": "HTTP+JSON",
+      "sublabel": "binding",
+      "pos": [
+        540,
+        410
+      ],
+      "size": [
+        150,
+        56
+      ]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "A2AService",
+      "sublabel": "11 RPCs",
+      "pos": [
+        790,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "executor",
+      "type": "backend",
+      "label": "Agent Executor",
+      "sublabel": "skills and model calls",
+      "pos": [
+        1030,
+        190
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "taskstore",
+      "type": "database",
+      "label": "Task Store",
+      "sublabel": "Task, Artifact, history",
+      "pos": [
+        1030,
+        300
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "stream",
+      "type": "messagebus",
+      "label": "Event Stream",
+      "sublabel": "StreamResponse",
+      "pos": [
+        790,
+        450
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "webhook",
+      "type": "messagebus",
+      "label": "Push Notification",
+      "sublabel": "webhook callback",
+      "pos": [
+        1030,
+        450
+      ],
+      "size": [
+        160,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "A2A Server deployment",
+      "wraps": [
+        "endpoint",
+        "jsonrpc",
+        "grpc",
+        "restjson",
+        "server",
+        "executor",
+        "taskstore",
+        "stream",
+        "webhook"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "Authenticated surface",
+      "wraps": [
+        "endpoint",
+        "server"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "discover",
+      "from": "client",
+      "to": "card",
+      "label": "fetch agent card",
+      "variant": "dashed"
+    },
+    {
+      "id": "authenticate",
+      "from": "auth",
+      "to": "endpoint",
+      "label": "authenticate",
+      "variant": "security"
+    },
+    {
+      "id": "invoke",
+      "from": "client",
+      "to": "endpoint",
+      "label": "SendMessage",
+      "variant": "emphasis",
+      "labelDy": 44
+    },
+    {
+      "id": "bind-jsonrpc",
+      "from": "endpoint",
+      "to": "jsonrpc"
+    },
+    {
+      "id": "bind-grpc",
+      "from": "endpoint",
+      "to": "grpc"
+    },
+    {
+      "id": "bind-rest",
+      "from": "endpoint",
+      "to": "restjson"
+    },
+    {
+      "id": "jsonrpc-server",
+      "from": "jsonrpc",
+      "to": "server"
+    },
+    {
+      "id": "grpc-server",
+      "from": "grpc",
+      "to": "server"
+    },
+    {
+      "id": "rest-server",
+      "from": "restjson",
+      "to": "server"
+    },
+    {
+      "id": "execute",
+      "from": "server",
+      "to": "executor",
+      "label": "execute",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "persist",
+      "from": "server",
+      "to": "taskstore",
+      "label": "persist Task"
+    },
+    {
+      "id": "emit",
+      "from": "server",
+      "to": "stream",
+      "label": "emit updates",
+      "labelDy": 24
+    },
+    {
+      "id": "configure-push",
+      "from": "server",
+      "to": "webhook",
+      "label": "push config",
+      "variant": "dashed"
+    },
+    {
+      "id": "callback",
+      "from": "webhook",
+      "to": "client",
+      "label": "POST callback",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "left",
+      "via": [
+        [
+          1110,
+          580
+        ],
+        [
+          20,
+          580
+        ],
+        [
+          20,
+          332
+        ]
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Discovery",
+      "items": [
+        "Agent Card lists supported_interfaces with protocol_binding and protocol_version",
+        "Signatures (JWS) allow cross-org trust",
+        "GetExtendedAgentCard returns the authenticated view"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Transport",
+      "items": [
+        "One proto contract, three bindings: JSON-RPC, gRPC, HTTP+JSON",
+        "Optional tenant field routes many agents behind one endpoint",
+        "Version negotiation via protocol_version per interface"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Result delivery",
+      "items": [
+        "Poll with GetTask / ListTasks",
+        "Stream with SendStreamingMessage or SubscribeToTask",
+        "Webhook via TaskPushNotificationConfig CRUD"
+      ]
+    }
+  ]
+}
