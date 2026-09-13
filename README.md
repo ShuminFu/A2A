@@ -1,5 +1,11 @@
 ![image info](images/A2A_banner.png)
 
+> **Status: snapshot of `google/A2A` at 2025-04-21 (v0.1-era protocol).**
+> Upstream now lives at [`a2aproject/A2A`](https://github.com/a2aproject/A2A) and ships
+> **A2A v1.0.1**, which renames every method used below and changes the wire model.
+> Samples moved to [`a2aproject/a2a-samples`](https://github.com/a2aproject/a2a-samples).
+> See [UPSTREAM_REVIEW.md](UPSTREAM_REVIEW.md) for the full delta and migration notes.
+
 **_An open protocol enabling communication and interoperability between opaque agentic applications._**
 
 <!-- TOC -->
