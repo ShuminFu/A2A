@@ -1,0 +1,23 @@
+[package]
+name = "a2a-echo-agent"
+description = "A sample A2A v1.0 agent: streaming text tools with multi-turn input and cancellation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "a2a-echo-agent"
+path = "src/main.rs"
+
+[dependencies]
+a2a-server.workspace = true
+a2a-types.workspace = true
+async-trait.workspace = true
+axum.workspace = true
+clap.workspace = true
+tokio = { workspace = true, features = ["full"] }
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true

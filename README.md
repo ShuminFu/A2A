@@ -1,5 +1,11 @@
 ![image info](images/A2A_banner.png)
 
+> **Note on this fork.** The content below describes A2A **v0.1**, which upstream
+> ([`a2aproject/A2A`](https://github.com/a2aproject/A2A)) has since replaced with v1.0 — see
+> [`UPSTREAM_REVIEW.md`](UPSTREAM_REVIEW.md). A working **v1.0 implementation in Rust** lives in
+> [`rust/`](rust/): protocol types, a server runtime, a client, a sample agent and a CLI. The
+> `samples/` and `demo/` trees below are the original v0.1 code and cannot talk to a v1.0 agent.
+
 **_An open protocol enabling communication and interoperability between opaque agentic applications._**
 
 <!-- TOC -->
