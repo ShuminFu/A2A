@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "A2A v1.0 Task Lifecycle",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "forward-path",
+        "label": "Forward path",
+        "focus": [
+          "sent",
+          "context",
+          "submitted",
+          "working",
+          "completed"
+        ],
+        "note": "Follow one unit of work from the client call to a completed task."
+      },
+      {
+        "id": "resumable",
+        "label": "Interrupted states",
+        "focus": [
+          "submitted",
+          "authreq",
+          "working",
+          "inputreq"
+        ],
+        "note": "See where a task pauses and how the client resumes it."
+      },
+      {
+        "id": "endings",
+        "label": "Terminal endings",
+        "focus": [
+          "completed",
+          "failed",
+          "canceled",
+          "rejected"
+        ],
+        "note": "Separate the four terminal states a task can end in."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Interaction rail"
+    },
+    {
+      "id": "interrupted",
+      "label": "Interrupted states"
+    },
+    {
+      "id": "terminal",
+      "label": "Terminal states"
+    }
+  ],
+  "states": [
+    {
+      "id": "sent",
+      "type": "start",
+      "label": "Message Sent",
+      "sublabel": "SendMessage",
+      "lane": "main",
+      "col": 0,
+      "step": "01",
+      "tag": "client"
+    },
+    {
+      "id": "context",
+      "type": "neutral",
+      "label": "Context Assigned",
+      "sublabel": "contextId + taskId",
+      "lane": "main",
+      "col": 1,
+      "step": "02",
+      "tag": "identity"
+    },
+    {
+      "id": "submitted",
+      "type": "active",
+      "label": "Submitted",
+      "sublabel": "SUBMITTED",
+      "lane": "main",
+      "col": 2,
+      "step": "03",
+      "tag": "accepted"
+    },
+    {
+      "id": "working",
+      "type": "active",
+      "label": "Working",
+      "sublabel": "WORKING",
+      "lane": "main",
+      "col": 3,
+      "step": "04",
+      "tag": "executing"
+    },
+    {
+      "id": "completed",
+      "type": "success",
+      "label": "Completed",
+      "sublabel": "COMPLETED",
+      "lane": "main",
+      "col": 4,
+      "step": "05",
+      "tag": "terminal"
+    },
+    {
+      "id": "authreq",
+      "type": "waiting",
+      "label": "Auth Required",
+      "sublabel": "AUTH_REQUIRED",
+      "lane": "interrupted",
+      "col": 0,
+      "tag": "resumable"
+    },
+    {
+      "id": "inputreq",
+      "type": "waiting",
+      "label": "Input Required",
+      "sublabel": "INPUT_REQUIRED",
+      "lane": "interrupted",
+      "col": 1,
+      "tag": "resumable"
+    },
+    {
+      "id": "rejected",
+      "type": "failure",
+      "label": "Rejected",
+      "sublabel": "REJECTED",
+      "lane": "terminal",
+      "col": 0,
+      "tag": "terminal"
+    },
+    {
+      "id": "canceled",
+      "type": "failure",
+      "label": "Canceled",
+      "sublabel": "CANCELED",
+      "lane": "terminal",
+      "col": 1,
+      "tag": "terminal"
+    },
+    {
+      "id": "failed",
+      "type": "failure",
+      "label": "Failed",
+      "sublabel": "FAILED",
+      "lane": "terminal",
+      "col": 2,
+      "tag": "terminal"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "accepted",
+      "from": "sent",
+      "to": "context",
+      "route": "straight",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "task-created",
+      "from": "context",
+      "to": "submitted",
+      "label": "task created",
+      "route": "straight",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 55,
+      "labelDx": -26
+    },
+    {
+      "id": "start-work",
+      "from": "submitted",
+      "to": "working",
+      "route": "straight",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "finish",
+      "from": "working",
+      "to": "completed",
+      "variant": "emphasis",
+      "route": "straight",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "needs-auth",
+      "from": "submitted",
+      "to": "authreq",
+      "label": "credentials needed",
+      "variant": "security",
+      "route": "straight",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "auth-resumed",
+      "from": "authreq",
+      "to": "working",
+      "label": "client authenticates",
+      "variant": "emphasis"
+    },
+    {
+      "id": "needs-input",
+      "from": "working",
+      "to": "inputreq",
+      "label": "agent asks for input",
+      "labelDy": 40,
+      "labelDx": 142
+    },
+    {
+      "id": "input-resumed",
+      "from": "inputreq",
+      "to": "working",
+      "label": "reply on same taskId",
+      "variant": "emphasis",
+      "labelDx": 156,
+      "labelDy": -12
+    },
+    {
+      "id": "auth-declined",
+      "from": "authreq",
+      "to": "rejected",
+      "label": "agent declines",
+      "variant": "security",
+      "route": "straight",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "cancel-while-waiting",
+      "from": "inputreq",
+      "to": "canceled",
+      "label": "CancelTask",
+      "variant": "security",
+      "route": "straight",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24,
+      "labelDx": -24
+    },
+    {
+      "id": "work-failed",
+      "from": "working",
+      "to": "failed",
+      "label": "unrecoverable error",
+      "variant": "security",
+      "labelDy": 38,
+      "channelX": 635
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Forward path",
+      "items": [
+        "SendMessage returns either a stateless Message or a stateful Task",
+        "Submitted to Working to Completed is the only forward progression"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Interrupted states",
+      "items": [
+        "Auth Required and Input Required pause a task without ending it",
+        "The client resumes by sending a message carrying the same taskId"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Terminal states",
+      "items": [
+        "Completed, Canceled, Rejected and Failed are terminal and immutable",
+        "New in v1.0: TASK_STATE_ prefix, plus REJECTED and AUTH_REQUIRED"
+      ]
+    }
+  ]
+}

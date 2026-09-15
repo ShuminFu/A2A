@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "A2A Protocol v1.0 Surface",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "primary-call",
+        "label": "Primary call path",
+        "focus": [
+          "client",
+          "http",
+          "server",
+          "taskstore"
+        ],
+        "note": "Follow one message from the consumer agent to durable task state."
+      },
+      {
+        "id": "discovery",
+        "label": "Discovery",
+        "focus": [
+          "client",
+          "card",
+          "http"
+        ],
+        "note": "The Agent Card carries the interfaces and the security schemes a client must satisfy."
+      },
+      {
+        "id": "updates",
+        "label": "Progress delivery",
+        "focus": [
+          "server",
+          "stream",
+          "push"
+        ],
+        "note": "Separate the connected stream from the disconnected webhook path."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "A2A Client",
+      "sublabel": "consumer agent",
+      "pos": [
+        40,
+        318
+      ],
+      "size": [
+        140,
+        60
+      ]
+    },
+    {
+      "id": "card",
+      "type": "backend",
+      "label": "Agent Card",
+      "sublabel": "/.well-known/agent-card.json",
+      "pos": [
+        350,
+        96
+      ],
+      "size": [
+        200,
+        64
+      ],
+      "tag": "JWS signed"
+    },
+    {
+      "id": "jsonrpc",
+      "type": "backend",
+      "label": "JSON-RPC 2.0",
+      "sublabel": "SendMessage",
+      "pos": [
+        350,
+        240
+      ],
+      "size": [
+        180,
+        56
+      ]
+    },
+    {
+      "id": "http",
+      "type": "backend",
+      "label": "HTTP + JSON",
+      "sublabel": "POST /message:send",
+      "pos": [
+        350,
+        320
+      ],
+      "size": [
+        180,
+        56
+      ]
+    },
+    {
+      "id": "grpc",
+      "type": "backend",
+      "label": "gRPC",
+      "sublabel": "lf.a2a.v1.A2AService",
+      "pos": [
+        350,
+        400
+      ],
+      "size": [
+        180,
+        56
+      ]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "A2A Server",
+      "sublabel": "remote agent",
+      "pos": [
+        660,
+        318
+      ],
+      "size": [
+        160,
+        60
+      ],
+      "tag": "tenant scoped"
+    },
+    {
+      "id": "taskstore",
+      "type": "database",
+      "label": "Task State",
+      "sublabel": "taskId + contextId",
+      "pos": [
+        920,
+        318
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "stream",
+      "type": "messagebus",
+      "label": "StreamResponse",
+      "sublabel": "SSE / server stream",
+      "pos": [
+        920,
+        96
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "push",
+      "type": "messagebus",
+      "label": "Push Notifications",
+      "sublabel": "webhook delivery",
+      "pos": [
+        920,
+        440
+      ],
+      "size": [
+        160,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "supportedInterfaces[] — equivalent bindings",
+      "wraps": [
+        "jsonrpc",
+        "http",
+        "grpc"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Remote agent",
+      "wraps": [
+        "server",
+        "taskstore",
+        "stream",
+        "push"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "discover",
+      "from": "client",
+      "to": "card",
+      "label": "fetch card",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "send-http",
+      "from": "client",
+      "to": "http",
+      "label": "POST /message:send",
+      "variant": "emphasis"
+    },
+    {
+      "id": "send-jsonrpc",
+      "from": "client",
+      "to": "jsonrpc",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "send-grpc",
+      "from": "client",
+      "to": "grpc",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "http-server",
+      "from": "http",
+      "to": "server",
+      "variant": "emphasis"
+    },
+    {
+      "id": "jsonrpc-server",
+      "from": "jsonrpc",
+      "to": "server"
+    },
+    {
+      "id": "grpc-server",
+      "from": "grpc",
+      "to": "server"
+    },
+    {
+      "id": "persist",
+      "from": "server",
+      "to": "taskstore",
+      "label": "persist task"
+    },
+    {
+      "id": "emit-stream",
+      "from": "server",
+      "to": "stream",
+      "label": "status + artifact events",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "emit-push",
+      "from": "server",
+      "to": "push",
+      "label": "notify when disconnected",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "left"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Discovery",
+      "items": [
+        "Agent Card at /.well-known/agent-card.json, JWS signed over RFC 8785",
+        "protocolVersion moved onto each AgentInterface, not the card root"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Operations",
+      "items": [
+        "SendMessage, SendStreamingMessage, GetTask, CancelTask, SubscribeToTask",
+        "ListTasks is new in v1.0, with filtering and cursor pagination"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Bindings and security",
+      "items": [
+        "Three bindings with equivalence guarantees; HTTP dropped the /v1 prefix",
+        "OAuth 2.0 device code and PKCE added; implicit and password removed"
+      ]
+    }
+  ]
+}
